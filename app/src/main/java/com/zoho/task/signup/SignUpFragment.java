@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.zoho.task.main.MainActivity;
 import com.zoho.task.R;
@@ -89,6 +90,8 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
             if (!dbHandler.isEmailAlreadyExist(mail)) {
                 dbHandler.addUserInformation(new UserInformation(name,
                         mail, password, contactNumber));
+                Toast.makeText(MainActivity.defaultInstance(), "Account created successfully", Toast.LENGTH_LONG).show();
+                MainActivity.defaultInstance().changeFragment(MainActivity.Fragments.LOGIN, null);
             } else {
                 DialogUtils dialogUtils = new DialogUtils(MainActivity.defaultInstance());
                 dialogUtils.createAlert(
