@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#8AC05A</color>
+    <color name="colorPrimaryDark">#8AC05A</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="but_login_signup_bg_color">#B3D29A</color>
+    <color name="et_text_color">#B8B8B8</color>
+    <color name="tv_text_color">#919191</color>
+
+
+</resources>
