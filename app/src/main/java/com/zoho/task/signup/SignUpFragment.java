@@ -81,10 +81,10 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
      * checkCredential method is used to check credentials.
      */
     private void checkCredential() {
-        String name = etName.getText().toString();
-        String mail = etEmail.getText().toString();
+        String name = etName.getText().toString().trim();
+        String mail = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString();
-        String contactNumber = etContactNumber.getText().toString();
+        String contactNumber = etContactNumber.getText().toString().trim();
         if (isValid(name, mail, password, contactNumber)) {
             DatabaseHandler dbHandler = new DatabaseHandler(MainActivity.defaultInstance());
             if (!dbHandler.isEmailAlreadyExist(mail)) {
@@ -120,7 +120,7 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
                     getResources().getString(R.string.invalid_error_popup_header),
                     getResources().getString(
                             R.string.required_fields_message));
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(etEmail.getText().toString()).matches()) {
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()) {
             dialogUtils.createAlert(
                     getResources().getString(R.string.invalid_error_popup_header),
                     getResources().getString(

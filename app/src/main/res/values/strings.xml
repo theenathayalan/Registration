@@ -12,10 +12,10 @@
     <string name="invalid_error_popup_header">Check Your Fields</string>
     <string name="required_fields_message">Please double check the form for any fields you left blank.</string>
     <string name="invalid_email">Please enter a valid Email</string>
-    <string name="password_error">1.Password contains minimum 6 letters \n 2.One uppercase characters \n 3.One lowercase characters \n 4.One numeric characters \n 5.one special character</string>
-    <string name="invalid_contact_number">Please enter a valid contact number</string>
+    <string name="password_error">Password should contains minimum 6 characters (one uppercase, one lowercase, one numeric and one special character)</string>
+    <string name="invalid_contact_number">Please enter your 10 digit contact number</string>
     <string name="email_already_exist">Email already registered</string>
     <string name="email_not_registered">Email not registered in this application, Please sign up with this email.</string>
-    <string name="wrong_password">Wrong password. Enter correct password.</string>
+    <string name="wrong_password">Enter correct password.</string>
 
 </resources>

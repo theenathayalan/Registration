@@ -10,11 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.zoho.task.main.MainActivity;
 import com.zoho.task.R;
 import com.zoho.task.db.DatabaseHandler;
+import com.zoho.task.main.MainActivity;
 import com.zoho.task.utility.DialogUtils;
 import com.zoho.task.welcome.LoginWelcomeActivity;
 
@@ -79,7 +78,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
      * checkCredential method is used to check credentials.
      */
     private void checkCredential() {
-        String mail = etEmail.getText().toString();
+        String mail = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString();
         if (isValid(mail, password)) {
             DatabaseHandler dbHandler = new DatabaseHandler(MainActivity.defaultInstance());
@@ -119,8 +118,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     getResources().getString(R.string.invalid_error_popup_header),
                     getResources().getString(
                             R.string.required_fields_message));
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(etEmail.getText().toString()).matches()) {
-            Toast.makeText(MainActivity.defaultInstance(), "valid", Toast.LENGTH_LONG).show();
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()) {
             dialogUtils.createAlert(
                     getResources().getString(R.string.invalid_error_popup_header),
                     getResources().getString(
