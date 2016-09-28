@@ -3,7 +3,6 @@ package com.zoho.task.signup;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +10,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.zoho.task.main.MainActivity;
 import com.zoho.task.R;
-import com.zoho.task.db.DatabaseHandler;
-import com.zoho.task.model.UserInformation;
+import com.zoho.task.main.MainActivity;
 import com.zoho.task.utility.DialogUtils;
 
 
-public class SignUpFragment extends Fragment implements View.OnClickListener {
+public class SignUpFragment extends Fragment implements SignUpView, View.OnClickListener {
 
     private View view;
     private Button butLogin, butCreateAccount;
     private EditText etName, etEmail, etPassword, etContactNumber;
+    private DialogUtils dialogUtils;
+    private SignUpPresenter signUpPresenter;
 
     @Nullable
     @Override
@@ -51,6 +50,8 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         etPassword = (EditText) view.findViewById(R.id.etPassword);
         etContactNumber = (EditText) view.findViewById(R.id.etContactNumber);
         butCreateAccount = (Button) view.findViewById(R.id.butCreateAccount);
+        dialogUtils = new DialogUtils(MainActivity.defaultInstance());
+        signUpPresenter = new SignUpPresenterImpl(this);
         butLogin.setOnClickListener(this);
         butCreateAccount.setOnClickListener(this);
     }
@@ -77,6 +78,52 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void setEmptyFieldError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.required_fields_message));
+    }
+
+    @Override
+    public void setEmailError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.invalid_email));
+    }
+
+    @Override
+    public void setPasswordError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.password_error));
+    }
+
+    @Override
+    public void setEmailAlreadyRegisterError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.email_already_exist));
+    }
+
+    @Override
+    public void setPhoneNumberError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.invalid_contact_number));
+    }
+
+    @Override
+    public void navigateToLogin() {
+        Toast.makeText(MainActivity.defaultInstance(), "Account created successfully", Toast.LENGTH_LONG).show();
+        MainActivity.defaultInstance().changeFragment(MainActivity.Fragments.LOGIN, null);
+    }
+
     /**
      * checkCredential method is used to check credentials.
      */
@@ -85,78 +132,6 @@ public class SignUpFragment extends Fragment implements View.OnClickListener {
         String mail = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString();
         String contactNumber = etContactNumber.getText().toString().trim();
-        if (isValid(name, mail, password, contactNumber)) {
-            DatabaseHandler dbHandler = new DatabaseHandler(MainActivity.defaultInstance());
-            if (!dbHandler.isEmailAlreadyExist(mail)) {
-                dbHandler.addUserInformation(new UserInformation(name,
-                        mail, password, contactNumber));
-                Toast.makeText(MainActivity.defaultInstance(), "Account created successfully", Toast.LENGTH_LONG).show();
-                MainActivity.defaultInstance().changeFragment(MainActivity.Fragments.LOGIN, null);
-            } else {
-                DialogUtils dialogUtils = new DialogUtils(MainActivity.defaultInstance());
-                dialogUtils.createAlert(
-                        getResources().getString(R.string.invalid_error_popup_header),
-                        getResources().getString(
-                                R.string.email_already_exist));
-            }
-            dbHandler.close();
-        }
-    }
-
-    /**
-     * isValid method is used to check the name,mail,password and contactNumber is valid.
-     *
-     * @param name
-     * @param mail
-     * @param password
-     * @param contactNumber
-     * @return boolean
-     */
-    private boolean isValid(String name, String mail, String password, String contactNumber) {
-        DialogUtils dialogUtils = new DialogUtils(MainActivity.defaultInstance());
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(mail) ||
-                TextUtils.isEmpty(password) || TextUtils.isEmpty(contactNumber)) {
-            dialogUtils.createAlert(
-                    getResources().getString(R.string.invalid_error_popup_header),
-                    getResources().getString(
-                            R.string.required_fields_message));
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()) {
-            dialogUtils.createAlert(
-                    getResources().getString(R.string.invalid_error_popup_header),
-                    getResources().getString(
-                            R.string.invalid_email));
-        } else if (password.length() < 6 || !isLegalPassword(password)) {
-            dialogUtils.createAlert(
-                    getResources().getString(R.string.invalid_error_popup_header),
-                    getResources().getString(
-                            R.string.password_error));
-        } else if (contactNumber.length() < 10) {
-            dialogUtils.createAlert(
-                    getResources().getString(R.string.invalid_error_popup_header),
-                    getResources().getString(
-                            R.string.invalid_contact_number));
-        } else {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * isLegalPassword method is used to check the password with correct data.
-     *
-     * @param pass
-     * @return boolean
-     */
-    private boolean isLegalPassword(String pass) {
-
-        if (!pass.matches(".*[A-Z].*")) return false;
-
-        if (!pass.matches(".*[a-z].*")) return false;
-
-        if (!pass.matches(".*\\d.*")) return false;
-
-        if (pass.matches("[a-zA-Z0-9.? ]*")) return false;
-
-        return true;
+        signUpPresenter.validateCredentials(MainActivity.defaultInstance(),name, mail, password, contactNumber);
     }
 }

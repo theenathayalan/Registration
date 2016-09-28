@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,16 +11,17 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.zoho.task.R;
-import com.zoho.task.db.DatabaseHandler;
 import com.zoho.task.main.MainActivity;
 import com.zoho.task.utility.DialogUtils;
 import com.zoho.task.welcome.LoginWelcomeActivity;
 
 
-public class LoginFragment extends Fragment implements View.OnClickListener {
+public class LoginFragment extends Fragment implements LoginView, View.OnClickListener {
     private View view;
     private Button butSignUp, butSignIn;
     private EditText etEmail, etPassword;
+    private LoginPresenter presenter;
+    private DialogUtils dialogUtils;
 
     @Nullable
     @Override
@@ -48,6 +48,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         etEmail = (EditText) view.findViewById(R.id.etEmail);
         etPassword = (EditText) view.findViewById(R.id.etPassword);
         butSignIn = (Button) view.findViewById(R.id.butSignin);
+        presenter = new LoginPresenterImpl(this);
+        dialogUtils = new DialogUtils(MainActivity.defaultInstance());
         butSignUp.setOnClickListener(this);
         butSignIn.setOnClickListener(this);
     }
@@ -58,6 +60,57 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private void setNavigationBar() {
         MainActivity.defaultInstance().getTvTitle().setText(getString(R.string.login));
     }
+
+    /**
+     * checkCredential method is used to check credentials.
+     */
+    private void checkCredential() {
+        String mail = etEmail.getText().toString().trim();
+        String password = etPassword.getText().toString();
+        presenter.validateCredentials(MainActivity.defaultInstance(), mail, password);
+    }
+
+    @Override
+    public void setEmailError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.invalid_email));
+
+    }
+
+    @Override
+    public void setEmailNotRegisterError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.email_not_registered));
+    }
+
+    @Override
+    public void setEmptyFieldError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.required_fields_message));
+    }
+
+    @Override
+    public void setPasswordError() {
+        dialogUtils.createAlert(
+                getResources().getString(R.string.invalid_error_popup_header),
+                getResources().getString(
+                        R.string.wrong_password));
+    }
+
+    @Override
+    public void navigateToWelcome(String mail) {
+        Intent intent = new Intent(MainActivity.defaultInstance(), LoginWelcomeActivity.class);
+        intent.putExtra("email", mail);
+        startActivity(intent);
+        MainActivity.defaultInstance().finish();
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -74,58 +127,4 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    /**
-     * checkCredential method is used to check credentials.
-     */
-    private void checkCredential() {
-        String mail = etEmail.getText().toString().trim();
-        String password = etPassword.getText().toString();
-        if (isValid(mail, password)) {
-            DatabaseHandler dbHandler = new DatabaseHandler(MainActivity.defaultInstance());
-            DialogUtils dialogUtils = new DialogUtils(MainActivity.defaultInstance());
-            if (dbHandler.isEmailAlreadyExist(mail)) {
-                if (dbHandler.isValidEmailAndPassword(mail, password)) {
-                    Intent intent = new Intent(MainActivity.defaultInstance(), LoginWelcomeActivity.class);
-                    intent.putExtra("email", mail);
-                    startActivity(intent);
-                    MainActivity.defaultInstance().finish();
-                } else {
-                    dialogUtils.createAlert(
-                            getResources().getString(R.string.invalid_error_popup_header),
-                            getResources().getString(
-                                    R.string.wrong_password));
-                }
-            } else {
-                dialogUtils.createAlert(
-                        getResources().getString(R.string.invalid_error_popup_header),
-                        getResources().getString(
-                                R.string.email_not_registered));
-            }
-        }
-    }
-
-    /**
-     * isValid method is used to check the mail and password is valid.
-     *
-     * @param mail
-     * @param password
-     * @return boolean
-     */
-    private boolean isValid(String mail, String password) {
-        DialogUtils dialogUtils = new DialogUtils(MainActivity.defaultInstance());
-        if (TextUtils.isEmpty(mail) || TextUtils.isEmpty(password)) {
-            dialogUtils.createAlert(
-                    getResources().getString(R.string.invalid_error_popup_header),
-                    getResources().getString(
-                            R.string.required_fields_message));
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(mail).matches()) {
-            dialogUtils.createAlert(
-                    getResources().getString(R.string.invalid_error_popup_header),
-                    getResources().getString(
-                            R.string.invalid_email));
-        } else {
-            return true;
-        }
-        return false;
-    }
 }
